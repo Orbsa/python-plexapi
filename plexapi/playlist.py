@@ -204,14 +204,20 @@ class Playlist(PlexPartialObject, Playable):
         return cls(server, data, initpath=key)
 
     def copyToUser(self, user):
-        """ Copy playlist to another user account. """
+        """ Copy playlist to another user account. 
+        
+        Parameters:
+            user (str, :class:'plexapi.myplex.MyPlexUser'): Email of user or MyPlexUser Object
+            """
         from plexapi.server import PlexServer
+        from plexapi.myplex import MyPlexUser
         myplex = self._server.myPlexAccount()
-        user = myplex.user(user)
+        if user is not MyPlexUser: user = myplex.user(user)
         # Get the token for your machine.
         token = user.get_token(self._server.machineIdentifier)
         # Login to your server using your friends credentials.
         user_server = PlexServer(self._server._baseurl, token)
+        # TODO: check if playlist already exists and resync/merge
         return self.create(user_server, self.title, self.items())
 
     def sync(self, videoQuality=None, photoResolution=None, audioBitrate=None, client=None, clientId=None, limit=None,
